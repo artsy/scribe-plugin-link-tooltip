@@ -1,21 +1,78 @@
+//
+// A [Scribe](https://github.com/guardian/scribe) plugin for link tooltip UI.
+// Some code copied from The Guardian's link prompt pugin:
+// https://github.com/guardian/scribe-plugin-link-prompt-command
+//
 (function() {
   var scribePluginLinkTooltip = function () {
     return function (scribe) {
-      var linkPromptCommand = new scribe.api.Command('createLink');
+      var linkTooltipCommand = new scribe.api.Command('createLink');
+      linkTooltipCommand.nodeName = 'A';
 
-      linkPromptCommand.nodeName = 'A';
+      // Append the tooltip on init, then hide/show it when necessary
+      var $tooltip = $(
+        '<form class="scribe-plugin-link-tooltip" style="display: none">' +
+        '<input placeholder="Paste or type a link"></input>' +
+        '<button type="submit">Apply</button>' +
+        '<button class="scribe-plugin-link-tooltip-remove" \
+          style="display: none">Remove</button>' +
+        '</form>'
+      );
+      var $input = $tooltip.find('input'),
+          $remove = $tooltip.find('.scribe-plugin-link-tooltip-remove')
+          $apply = $tooltip.find('[type=submit]')
+      $('body').append($tooltip);
 
-      linkPromptCommand.execute = function () {
+      var showTooltip = function(selection, val, submitCallback) {
+        var rect = selection.range.getClientRects()[0];
+        $input.val(val);
+        $tooltip.show().css({
+          position: 'absolute',
+          left: rect.left + (rect.width / 2),
+          top: rect.bottom + 10
+        }).one('submit', submitCallback);
+        // If there's an existing value then show the remove option instead
+        // of the apply button
+        if (val && selection.selection.anchorNode) {
+          $apply.hide();
+          $remove.show().one('click', function(e) {
+            var range = document.createRange();
+            range.selectNodeContents(selection.selection.anchorNode);
+            getSelection().removeAllRanges();
+            getSelection().addRange(range);
+            new scribe.api.Command('unlink').execute();
+          });
+        } else {
+          $apply.show();
+          $remove.hide();
+        }
+        // On clicking off the tooltip or an A, hide the tooltip.
+        // (Defered to let events resolve).
+        setTimeout(function() {
+          $(document).one('click', function(e) {
+            if ($tooltip.is(':visible') &&
+                !$(e.target).closest('.scribe-plugin-link-tooltip').length &&
+                !$(e.target).is('a') &&
+                !$(e.target).is('.scribe-plugin-link-tooltip [type=submit]')) {
+              $tooltip.hide();
+            }
+          });
+        }, 0);
+      }
+
+      linkTooltipCommand.execute = function () {
         var selection = new scribe.api.Selection();
-        var range = selection.range;
-        var anchorNode = selection.getContaining(function (node) {
-          return node.nodeName === this.nodeName;
+        showTooltip(selection, '', function(e) {
+          e.preventDefault();
+          $tooltip.hide();
+          getSelection().removeAllRanges();
+          getSelection().addRange(selection.range);
+          scribe.api.SimpleCommand.prototype.execute.call(this, $input.val());
         }.bind(this));
-        var initialLink = anchorNode ? anchorNode.href : 'http://';
-        scribe.api.SimpleCommand.prototype.execute.call(this, 'http://google.com');
+        $input.focus();
       };
 
-      linkPromptCommand.queryState = function () {
+      linkTooltipCommand.queryState = function () {
         /**
          * We override the native `document.queryCommandState` for links because
          * the `createLink` and `unlink` commands are not supported.
@@ -23,11 +80,20 @@
          */
         var selection = new scribe.api.Selection();
         return !! selection.getContaining(function (node) {
+          // Show the tooltip when clicking on a link.
+          // When submitting change the link.
+          if ($(node).is('a')) {
+            showTooltip(selection, $(node).attr('href'), function(e) {
+              e.preventDefault();
+              $tooltip.hide();
+              $(node).attr('href', $input.val());
+            }.bind(this));
+          }
           return node.nodeName === this.nodeName;
         }.bind(this));
       };
 
-      scribe.commands.linkPrompt = linkPromptCommand;
+      scribe.commands.linkPrompt = linkTooltipCommand;
     };
   };
 
