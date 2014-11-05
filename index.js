@@ -1,5 +1,5 @@
 (function() {
-  var plugin = function () {
+  var scribePluginLinkTooltip = function () {
     return function (scribe) {
       var linkPromptCommand = new scribe.api.Command('createLink');
 
@@ -33,8 +33,8 @@
 
   // Export for CommonJS & window global. TODO: AMD
   if (typeof module != 'undefined') {
-    module.exports = plugin;
+    module.exports = scribePluginLinkTooltip;
   } else {
-    window.scrollFrame = plugin;
+    window.scribePluginLinkTooltip = scribePluginLinkTooltip;
   }
 })();
