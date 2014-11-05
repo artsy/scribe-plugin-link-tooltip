@@ -1,6 +1,6 @@
 {
   "name": "scribe-plugin-link-tooltip",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A Scribe plugin for doing a Medium/Google Docs style tooltip UI instead of a prompt for inserting links.",
   "keywords": [
     "scribe",
