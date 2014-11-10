@@ -24,12 +24,20 @@
       $('body').append($tooltip);
 
       var showTooltip = function(selection, val, submitCallback) {
-        var rect = selection.range.getClientRects()[0];
+        var rects = selection.range.getClientRects();
         $input.val(val);
+        var left = 0;
+        var top = 0;
+        Array.prototype.forEach.call(rects, function(rect) {
+          left += rect.left + (rect.width / 2);
+          top += rect.bottom;
+        });
+        left = left / rects.length;
+        top = top / rects.length;
         $tooltip.show().css({
           position: 'absolute',
-          left: rect.left + (rect.width / 2),
-          top: rect.bottom + 10
+          left: left,
+          top: $(window).scrollTop() + top + 10
         }).one('submit', submitCallback);
         // If there's an existing value then show the remove option instead
         // of the apply button
