@@ -19,8 +19,8 @@
         '</form>'
       );
       var $input = $tooltip.find('input'),
-          $remove = $tooltip.find('.scribe-plugin-link-tooltip-remove')
-          $apply = $tooltip.find('[type=submit]')
+          $remove = $tooltip.find('.scribe-plugin-link-tooltip-remove'),
+          $apply = $tooltip.find('[type=submit]');
       $('body').append($tooltip);
 
       var showTooltip = function(selection, val, submitCallback) {
