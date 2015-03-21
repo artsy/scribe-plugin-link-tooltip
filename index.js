@@ -44,7 +44,6 @@
         // If there's an existing value then show the remove option instead
         // of the apply button
         if (val && selection.selection.anchorNode) {
-          console.log($apply)
           $apply.hide();
           $remove.show().one('click', function(e) {
             var range = document.createRange();
