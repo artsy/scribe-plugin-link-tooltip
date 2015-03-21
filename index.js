@@ -4,24 +4,26 @@
 // https://github.com/guardian/scribe-plugin-link-prompt-command
 //
 (function() {
+
+  // Create the tooltip and append on doc laod, then hide/show it when necessary
+  var $tooltip = $(
+    '<form class="scribe-plugin-link-tooltip" style="display: none">' +
+      '<input placeholder="Paste or type a link"></input>' +
+      '<button class="scribe-plugin-link-tooltip-add" \
+        type="submit">Apply</button>' +
+      '<button class="scribe-plugin-link-tooltip-remove" \
+        style="display: none">Remove</button>' +
+    '</form>'
+  );
+  var $input = $tooltip.find('input'),
+      $remove = $tooltip.find('.scribe-plugin-link-tooltip-remove')
+      $apply = $tooltip.find('.scribe-plugin-link-tooltip-add');
+  $(function() { $('body').append($tooltip) });
+
   var scribePluginLinkTooltip = function () {
     return function (scribe) {
       var linkTooltipCommand = new scribe.api.Command('createLink');
       linkTooltipCommand.nodeName = 'A';
-
-      // Append the tooltip on init, then hide/show it when necessary
-      var $tooltip = $(
-        '<form class="scribe-plugin-link-tooltip" style="display: none">' +
-        '<input placeholder="Paste or type a link"></input>' +
-        '<button type="submit">Apply</button>' +
-        '<button class="scribe-plugin-link-tooltip-remove" \
-          style="display: none">Remove</button>' +
-        '</form>'
-      );
-      var $input = $tooltip.find('input'),
-          $remove = $tooltip.find('.scribe-plugin-link-tooltip-remove')
-          $apply = $tooltip.find('[type=submit]')
-      $('body').append($tooltip);
 
       var showTooltip = function(selection, val, submitCallback) {
         var rects = selection.range.getClientRects();
@@ -42,6 +44,7 @@
         // If there's an existing value then show the remove option instead
         // of the apply button
         if (val && selection.selection.anchorNode) {
+          console.log($apply)
           $apply.hide();
           $remove.show().one('click', function(e) {
             var range = document.createRange();
