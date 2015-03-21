@@ -11,7 +11,7 @@ scribe.use(scribePluginLinkTooltip());
 
 ## Positioning
 
-The tooltip will append itself to the body and use `position: absolute`, `top`, and left` to position it close to the text you're highlighting. You can use CSS and target `.scribe-plugin-link-tooltip` to adjust styling of the tooltip.
+The tooltip will append itself to the body and use `position: absolute`, `top`, and `left` to position it close to the text you're highlighting. You can use CSS and target `.scribe-plugin-link-tooltip` to adjust styling of the tooltip.
 
 e.g.
 
